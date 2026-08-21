@@ -39,6 +39,6 @@ if st.button("Predict"):
     result = respose.json()
 
     if result["prediction"] == "Pass":
-        st.sucess("Student Pass")
+        st.success("Student Pass")
     else:
         st.error("student fail")
