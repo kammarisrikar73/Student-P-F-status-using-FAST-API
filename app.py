@@ -33,7 +33,7 @@ if st.button("Predict"):
             "absences":Absences,
             "G1":g1,
             "G2":g2}
-    respose = requests.post( "http://127.0.0.1:8000/predict",
+    respose = requests.post( "https://student-p-f-status-using-fast-api.onrender.com/predict",
                             json=data)
 
     result = respose.json()
