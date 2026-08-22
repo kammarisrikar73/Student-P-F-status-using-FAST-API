@@ -249,9 +249,9 @@ This project demonstrates:
 
 **Srikar Kammari**
 
-GitHub: `https://github.com/kammarisrikar73/Student-P-F-status-using-FAST-API`
+GitHub: https://github.com/kammarisrikar73/Student-P-F-status-using-FAST-API
 
-Streamlit live :`https://student-p-f-status-using-fast-api-kvscuemethz3r4ycyobgzu.streamlit.app/`
+Streamlit live : https://student-p-f-status-using-fast-api-kvscuemethz3r4ycyobgzu.streamlit.app/
 ---
 
 If you found this project useful, consider giving the repository a star.
