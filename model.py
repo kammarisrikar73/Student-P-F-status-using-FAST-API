@@ -2,7 +2,7 @@ import pandas as pd
 import joblib
 import sklearn
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from lightgbm import LGBMClassifier
 from sklearn.preprocessing import OneHotEncoder,StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -19,9 +19,11 @@ numerical = ["studytime","failures","absences","G1","G2"]
 preprocess = ColumnTransformer([("cat",OneHotEncoder(handle_unknown="ignore"),categorical),
                                 ("num",StandardScaler(),numerical)])
 pipeline = Pipeline([("preprocess",preprocess),
-                     ("model",LogisticRegression())])
+                     ("model",LGBMClassifier(n_estimators=100,
+                                             random_state=42,
+                                             max_depth=3,
+                                             learning_rate=0.1))])
 
-print(df.dtypes)
 
 X = df[["school","sex","Pstatus","activities","studytime","failures","absences","G1","G2"]]
 y = df["G3"]
