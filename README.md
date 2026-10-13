@@ -1,39 +1,39 @@
-# Student Pass/Fail Detection using FastAPI
+# Student Pass/Fail Prediction using LightGBM and FastAPI
 
-A machine learning project that predicts whether a student will **Pass or Fail** based on academic and personal factors such as study time, failures, absences, and previous grades.
-
-The trained machine learning model is integrated with **FastAPI** to provide predictions through a REST API.
+A machine learning project that predicts student academic outcomes using academic and personal features such as study time, previous grades, past failures, and absences. The trained LightGBM classification model is integrated with FastAPI to provide predictions through a REST API.
 
 ## Project Overview
 
-This project demonstrates how a machine learning model can be trained, saved, loaded, and deployed as an API.
+This project demonstrates an end-to-end machine learning workflow, including data preprocessing, model training, model persistence, API integration, and prediction serving.
 
 ### Workflow
 
 ```text
-User Input
-    ↓
-FastAPI
-    ↓
+Student Dataset
+      ↓
+Data Preprocessing
+      ↓
+LightGBM Model Training
+      ↓
+Save Model using Joblib
+      ↓
+FastAPI Application
+      ↓
 Input Validation
-    ↓
-Trained ML Model
-    ↓
-Prediction
-    ↓
-Pass / Fail Response
+      ↓
+Prediction Response
 ```
 
 ## Technologies Used
 
-* Python
-* Pandas
-* NumPy
-* Scikit-learn
-* Joblib
-* FastAPI
-* Uvicorn
-* Git & GitHub
+- Python
+- Pandas and NumPy
+- Scikit-learn
+- LightGBM
+- Joblib
+- FastAPI
+- Uvicorn
+- Git and GitHub
 
 ## Project Structure
 
@@ -41,41 +41,50 @@ Pass / Fail Response
 student-pass-fail-api/
 │
 ├── app.py
+├── model.py
 ├── model.joblib
 ├── requirements.txt
 ├── README.md
 └── .gitignore
 ```
 
-### Files Description
-
-| File               | Purpose                                         |
-| ------------------ | ----------------------------------------------- |
-| `app.py`           | FastAPI application and prediction endpoint     |
-| `model.joblib`     | Saved trained machine learning model            |
-| `requirements.txt` | Python dependencies required to run the project |
-| `README.md`        | Project documentation                           |
-| `.gitignore`       | Files that should not be uploaded to GitHub     |
+- `model.py` — Preprocesses the dataset, trains the LightGBM pipeline, and saves the trained model.
+- `app.py` — Loads the saved model and exposes the prediction endpoint through FastAPI.
+- `model.joblib` — Stores the trained preprocessing and prediction pipeline.
+- `requirements.txt` — Lists the Python dependencies.
+- `README.md` — Documents the project and setup instructions.
+- `.gitignore` — Specifies files Git should ignore.
 
 ## Machine Learning Model
 
-The project uses a classification model to predict the student's result.
+The project uses **LightGBM (`LGBMClassifier`)**, a gradient-boosting algorithm based on decision trees.
 
-The model is trained using student-related features such as:
+The model is integrated into a Scikit-learn pipeline that combines:
 
-* Student pass/fail-related academic information
-* Study time
-* Number of failures
-* Number of absences
-* Previous grades
+- `ColumnTransformer` for categorical and numerical feature preprocessing.
+- `OneHotEncoder` for categorical features.
+- `StandardScaler` for numerical features.
+- `LGBMClassifier` for model training and prediction.
 
-The trained model is saved using **Joblib**:
+### Model Configuration
 
 ```python
-joblib.dump(model, "model.joblib")
+LGBMClassifier(
+    n_estimators=100,
+    max_depth=3,
+    learning_rate=0.1,
+    random_state=42
+)
 ```
 
-The saved model is loaded by the FastAPI application:
+The complete pipeline is trained and saved using Joblib:
+
+```python
+pipeline.fit(X_train, y_train)
+joblib.dump(pipeline, "model.joblib")
+```
+
+The saved pipeline is loaded by the FastAPI application:
 
 ```python
 model = joblib.load("model.joblib")
@@ -83,9 +92,9 @@ model = joblib.load("model.joblib")
 
 ## API Endpoint
 
-### POST `/predict`
+**POST `/predict`**
 
-This endpoint receives student information and returns the predicted result.
+Accepts student information as JSON and returns a prediction.
 
 ### Example Request
 
@@ -95,13 +104,15 @@ This endpoint receives student information and returns the predicted result.
     "sex": "F",
     "pstatus": "T",
     "activities": "yes",
-    "study_time": 0,
+    "study_time": 2,
     "failures": 0,
-    "absences": 0,
-    "G1": 0,
-    "G2": 0
+    "absences": 3,
+    "G1": 12,
+    "G2": 13
 }
 ```
+
+*Ensure that the request fields and allowed values match the input schema defined in `app.py`.*
 
 ### Example Response
 
@@ -111,147 +122,78 @@ This endpoint receives student information and returns the predicted result.
 }
 ```
 
-The prediction may be either:
-
-```text
-Pass
-```
-
-or
-
-```text
-Fail
-```
+The response may be `"Pass"` or `"Fail"`, according to the prediction logic implemented in the application.
 
 ## How to Run the Project
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/kammarisrikar73/Student-P-F-status-using-FAST-API
+git clone https://github.com/kammarisrikar73/Student-P-F-status-using-FAST-API.git
 ```
 
-### 2. Navigate to the project folder
+### 2. Navigate to the project directory
 
 ```bash
-cd student-pass-fail-api
+cd Student-P-F-status-using-FAST-API
 ```
 
-### 3. Create a virtual environment
+### 3. Create and activate a virtual environment
+
+Windows:
 
 ```bash
 python -m venv venv
-```
-
-### 4. Activate the virtual environment
-
-**Windows:**
-
-```bash
 venv\Scripts\activate
 ```
 
-### 5. Install dependencies
+### 4. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 6. Start the FastAPI server
+### 5. Start the FastAPI server
 
-...bash
-uvicorn app:app --reload
-...
-
-The API will run at:
-
-'''text
-http://127.0.0.1:8000
-'''
-
-## API Documentation
-
-FastAPI automatically provides interactive API documentation.
-
-Open:
-
---- text
-http://127.0.0.1:8000/docs
---
-
-From the Swagger UI, you can:
-
-1. Open the `/predict` endpoint.
-2. Click **Try it out**.
-3. Enter student details.
-4. Click **Execute**.
-5. View the prediction.
-
-## Testing
-
-The API can be tested using:
-
-* FastAPI Swagger UI
-* Postman
-* Python `requests`
-
-Example using Python:
-
-```python
-import requests
-
-data = {
-    "school": "GP",
-    "sex": "F",
-    "pstatus": "T",
-    "activities": "yes",
-    "study_time": 0,
-    "failures": 0,
-    "absences": 0,
-    "G1": 0,
-    "G2": 0
-}
-
-response = requests.post(
-    "http://127.0.0.1:8000/predict",
-    json=data
-)
-
-print(response.json())
+```bash
+python -m uvicorn app:app --reload
 ```
+
+The API will be available at:
+
+`http://127.0.0.1:8000`
+
+## API Documentation and Testing
+
+Open the interactive Swagger documentation:
+
+`http://127.0.0.1:8000/docs`
+
+You can use Swagger UI or Postman to submit student details to the `/predict` endpoint and inspect the response.
 
 ## Key Concepts Demonstrated
 
-This project demonstrates:
-
-- Machine Learning classification
-- Data preprocessing
-- Model training
-- Model persistence using Joblib
-- Loading a trained model
-- FastAPI
-- REST API
-- HTTP POST requests
-- JSON request and response
+- Classification using LightGBM
+- Categorical and numerical data preprocessing
+- Scikit-learn pipelines
+- Model training and inference
+- Model serialization using Joblib
+- FastAPI REST API development
+- JSON requests and responses
 - Pydantic input validation
-- API testing with Swagger/Postman
+- API testing and integration
 
-## Future Improvements
+## Live Demo
 
-* Add a frontend using Streamlit or HTML/CSS/JavaScript
-* Deploy the FastAPI application online
-* Add model performance metrics
-* Add more student features
-* Improve prediction accuracy
-* Add automated testing
+Try the deployed application:
+
+[Student Pass/Fail Prediction — Streamlit](https://student-p-f-status-using-fast-api-kvscuemethz3r4ycyobgzu.streamlit.app/)
 
 ## Author
 
 **Srikar Kammari**
 
-GitHub: https://github.com/kammarisrikar73/Student-P-F-status-using-FAST-API
+GitHub: [kammarisrikar73](https://github.com/kammarisrikar73)
 
-Streamlit live : https://student-p-f-status-using-fast-api-kvscuemethz3r4ycyobgzu.streamlit.app/
----
+If you find this project useful, consider giving the repository a star.
 
-If you found this project useful, consider giving the repository a star.
